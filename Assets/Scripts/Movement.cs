@@ -4,45 +4,88 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
-    [SerializeField] float mainThrust = 100f;
+    [SerializeField] float mainThrust = 1000f;
     [SerializeField] float rotationSpeed = 100f;
+    [SerializeField] AudioClip mainEngine;
+    [SerializeField] ParticleSystem leftwingParticle;
+    [SerializeField] ParticleSystem rightwingParticle;
+    [SerializeField] ParticleSystem thrustersParticle;
+
     Rigidbody rigidBody;
-    // Start is called before the first frame update
+    AudioSource audioSource;
+
+
     void Start()
     {
         rigidBody = GetComponent<Rigidbody>();
+        audioSource = GetComponent<AudioSource>();
     }
 
-    // Update is called once per fram
     void FixedUpdate()
     {
         ProcessThrust();
         ProcessRotate();
     }
+
     void ProcessThrust()
     {
         if (Input.GetKey(KeyCode.Space))
         {
-
-            rigidBody.AddRelativeForce(Vector3.up * mainThrust * Time.fixedDeltaTime);
+            StartThrusting();
+        }
+        else
+        {
+            StopThrusting();
         }
     }
+
+    void StartThrusting()
+    {
+        thrustersParticle.Play();
+
+        rigidBody.AddRelativeForce(mainThrust * Time.fixedDeltaTime * Vector3.up);
+
+        if (!audioSource.isPlaying)
+        {
+            audioSource.PlayOneShot(mainEngine);
+        }
+    }
+
+    private void StopThrusting()
+    {
+        thrustersParticle.Stop();
+        audioSource.Stop();
+    }
+
     void ProcessRotate()
     {
         if (Input.GetKey(KeyCode.A))
         {
-            ApplyRotation(rotationSpeed);
+            RotateLeft();
         }
         if (Input.GetKey(KeyCode.D))
         {
-            ApplyRotation(-rotationSpeed);
+            RotateRight();
         }
+    }
+
+    private void RotateLeft()
+    {
+        leftwingParticle.Play();
+        ApplyRotation(rotationSpeed);
+    }
+
+    private void RotateRight()
+    {
+        rightwingParticle.Play();
+        ApplyRotation(-rotationSpeed);
     }
 
     void ApplyRotation(float rotationThisFrame)
     {
         rigidBody.freezeRotation = true;
-        transform.Rotate(Vector3.forward * rotationThisFrame * Time.fixedDeltaTime);
+        transform.Rotate(rotationThisFrame * Time.fixedDeltaTime * Vector3.forward);
         rigidBody.freezeRotation = false;
     }
 }
+

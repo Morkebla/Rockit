@@ -56,6 +56,7 @@ public class CollisionHandler : MonoBehaviour
 
     void StartCrashSequence()
     {
+        SetMeshComponentVisibility(false);
         isTransitioning = false;
         audioSource.Stop();
         audioSource.PlayOneShot(crashSound);
@@ -83,6 +84,8 @@ public class CollisionHandler : MonoBehaviour
 
     void RespondToDebugKeys()
     {
+        if (!Debug.isDebugBuild) { return; }
+
         if (Input.GetKeyDown(KeyCode.L))
         {
             LoadNextLevel();
@@ -90,6 +93,14 @@ public class CollisionHandler : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.C))
         {
             collisionTriggering = !collisionTriggering;
+        }
+    }
+    void SetMeshComponentVisibility(bool isVisible)
+    {
+        MeshRenderer[] meshRenderers = GetComponentsInChildren<MeshRenderer>();
+        foreach (MeshRenderer meshRenderer in meshRenderers)
+        {
+            meshRenderer.enabled = isVisible;
         }
     }
 }
